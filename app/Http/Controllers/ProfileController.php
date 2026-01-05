@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
@@ -35,6 +34,16 @@ class ProfileController extends Controller
         $request->user()->save();
 
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
+    }
+
+    public function likedPosts()
+    {
+        $posts = Auth::user()
+            ->likedPosts()
+            ->with('user', 'images')
+            ->latest('likes.created_at')
+            ->paginate(10);
+        return view('profile.liked-posts', compact('posts'));
     }
 
     /**

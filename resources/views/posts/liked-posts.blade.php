@@ -73,7 +73,7 @@
                                             class="text-gray-500 text-sm truncate">{{ '@' . Str::slug($post->user->name, '') }}</span>
                                         <span class="text-gray-500 text-sm">·</span>
                                         <span
-                                            class="text-gray-500 text-sm hover:underline">{{ $post->created_at->diffForHumans() }}</span>
+                                            class="text-gray-500 text-sm hover:underline">{{ $post->created_at->diffForHumansShort() ?? $post->created_at->format('M d') }}</span>
                                     </div>
                                     <div class="text-gray-400">
                                         <svg class="w-5 h-5"

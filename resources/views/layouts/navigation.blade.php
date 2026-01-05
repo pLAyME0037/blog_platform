@@ -25,24 +25,33 @@
             <div class="flex">
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
-                    <a href="{{ route('home') }}">
+                    <a href="{{ route('posts.index') }}">
                         <x-application-logo class="block h-9 w-auto fill-current text-gray-800 dark:text-gray-200" />
                     </a>
                 </div>
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
-                    <x-nav-link :href="route('home')"
-                        :active="request()->routeIs('home')"
+                    <!-- Public: Home -->
+                    <x-nav-link :href="route('posts.index')"
+                        :active="request()->routeIs('posts.index')"
                         class="text-gray-900 dark:text-gray-100">
                         {{ __('Home') }}
                     </x-nav-link>
 
                     @auth
-                        <x-nav-link :href="route('posts.index')"
-                            :active="request()->routeIs('posts.*')"
+                        <!-- Auth: Dashboard -->
+                        <x-nav-link :href="route('dashboard')"
+                            :active="request()->routeIs('dashboard')"
                             class="text-gray-900 dark:text-gray-100">
                             {{ __('Dashboard') }}
+                        </x-nav-link>
+
+                        <!-- Auth: My Posts (The Dev 2 Feature) -->
+                        <x-nav-link :href="route('dashboard.posts.index')"
+                            :active="request()->routeIs('dashboard.posts.*')"
+                            class="text-gray-900 dark:text-gray-100">
+                            {{ __('My Posts') }}
                         </x-nav-link>
                     @endauth
                 </div>
@@ -54,7 +63,6 @@
                 <!-- Dark Mode Toggle Button -->
                 <button @click="toggleTheme()"
                     class="p-2 rounded-full text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 focus:outline-none transition-colors">
-                    <!-- Sun Icon (Show when dark) -->
                     <svg x-show="darkMode"
                         xmlns="http://www.w3.org/2000/svg"
                         class="h-5 w-5"
@@ -66,7 +74,6 @@
                             stroke-width="2"
                             d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
                     </svg>
-                    <!-- Moon Icon (Show when light) -->
                     <svg x-show="!darkMode"
                         xmlns="http://www.w3.org/2000/svg"
                         class="h-5 w-5"
@@ -88,7 +95,6 @@
                             <button
                                 class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-300 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-white focus:outline-none transition ease-in-out duration-150">
                                 <div>{{ Auth::user()->name }}</div>
-
                                 <div class="ml-1">
                                     <svg class="fill-current h-4 w-4"
                                         xmlns="http://www.w3.org/2000/svg"
@@ -105,14 +111,11 @@
                             <x-dropdown-link :href="route('profile.edit')">
                                 {{ __('Profile') }}
                             </x-dropdown-link>
-
-                            <!-- Authentication -->
                             <form method="POST"
                                 action="{{ route('logout') }}">
                                 @csrf
                                 <x-dropdown-link :href="route('logout')"
-                                    onclick="event.preventDefault();
-                                                    this.closest('form').submit();">
+                                    onclick="event.preventDefault(); this.closest('form').submit();">
                                     {{ __('Log Out') }}
                                 </x-dropdown-link>
                             </form>
@@ -124,16 +127,13 @@
                             class="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition">Log
                             in</a>
                         <a href="{{ route('register') }}"
-                            class="px-4 py-2 text-sm font-medium text-white bg-gray-800 rounded-full hover:bg-gray-700 dark:bg-blue-600 dark:hover:bg-blue-500 transition shadow-md">
-                            Register
-                        </a>
+                            class="px-4 py-2 text-sm font-medium text-white bg-gray-800 rounded-full hover:bg-gray-700 dark:bg-blue-600 dark:hover:bg-blue-500 transition shadow-md">Register</a>
                     </div>
                 @endauth
             </div>
 
             <!-- Hamburger (Mobile Menu) -->
             <div class="-mr-2 flex items-center sm:hidden space-x-4">
-                <!-- Mobile Dark Mode Toggle -->
                 <button @click="toggleTheme()"
                     class="p-2 text-gray-500 dark:text-gray-400 focus:outline-none">
                     <svg x-show="darkMode"
@@ -186,15 +186,20 @@
     <div :class="{ 'block': open, 'hidden': !open }"
         class="hidden sm:hidden bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800">
         <div class="pt-2 pb-3 space-y-1">
-            <x-responsive-nav-link :href="route('home')"
-                :active="request()->routeIs('home')">
+            <x-responsive-nav-link :href="route('posts.index')"
+                :active="request()->routeIs('posts.index')">
                 {{ __('Home') }}
             </x-responsive-nav-link>
 
             @auth
-                <x-responsive-nav-link :href="route('posts.index')"
-                    :active="request()->routeIs('posts.*')">
+                <x-responsive-nav-link :href="route('dashboard')"
+                    :active="request()->routeIs('dashboard')">
                     {{ __('Dashboard') }}
+                </x-responsive-nav-link>
+
+                <x-responsive-nav-link :href="route('dashboard.posts.index')"
+                    :active="request()->routeIs('dashboard.posts.*')">
+                    {{ __('My Posts') }}
                 </x-responsive-nav-link>
             @endauth
         </div>
@@ -206,31 +211,23 @@
                     <div class="font-medium text-base text-gray-800 dark:text-gray-200">{{ Auth::user()->name }}</div>
                     <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
                 </div>
-
                 <div class="mt-3 space-y-1">
                     <x-responsive-nav-link :href="route('profile.edit')">
                         {{ __('Profile') }}
                     </x-responsive-nav-link>
-
-                    <!-- Authentication -->
                     <form method="POST"
                         action="{{ route('logout') }}">
                         @csrf
                         <x-responsive-nav-link :href="route('logout')"
-                            onclick="event.preventDefault();
-                                            this.closest('form').submit();">
+                            onclick="event.preventDefault(); this.closest('form').submit();">
                             {{ __('Log Out') }}
                         </x-responsive-nav-link>
                     </form>
                 </div>
             @else
                 <div class="mt-3 space-y-1 px-4">
-                    <x-responsive-nav-link :href="route('login')">
-                        {{ __('Log in') }}
-                    </x-responsive-nav-link>
-                    <x-responsive-nav-link :href="route('register')">
-                        {{ __('Register') }}
-                    </x-responsive-nav-link>
+                    <x-responsive-nav-link :href="route('login')">{{ __('Log in') }}</x-responsive-nav-link>
+                    <x-responsive-nav-link :href="route('register')">{{ __('Register') }}</x-responsive-nav-link>
                 </div>
             @endauth
         </div>
