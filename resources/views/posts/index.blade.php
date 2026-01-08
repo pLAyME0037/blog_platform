@@ -50,9 +50,17 @@
             <!-- THE FEED LOOP -->
             <div class="space-y-4 pb-20">
                 @foreach ($posts as $post)
+                    @php
+                        // Check user interactions (Optimized for View)
+                        $hasLiked = Auth::check() && Auth::user()->likes->contains($post->id);
+                        $hasCommented = Auth::check() && $post->comments->where('user_id', Auth::id())->count() > 0;
+                        // Share logic would go here if DB existed
+                    @endphp
+
                     <article
                         class="bg-white dark:bg-gray-800 border-b sm:border border-gray-200 dark:border-gray-700 sm:rounded-xl overflow-hidden hover:bg-gray-50 dark:hover:bg-gray-800/50 transition cursor-pointer"
                         onclick="window.location='{{ route('posts.show', $post) }}'">
+
                         <div class="p-4 flex gap-4">
                             <!-- Avatar -->
                             <div class="flex-shrink-0">
@@ -67,14 +75,18 @@
                                 <!-- Header -->
                                 <div class="flex items-center justify-between mb-1">
                                     <div class="flex items-center gap-1 overflow-hidden">
-                                        <span
-                                            class="font-bold text-gray-900 dark:text-gray-100 truncate">{{ $post->user->name }}</span>
-                                        <span
-                                            class="text-gray-500 text-sm truncate">{{ '@' . Str::slug($post->user->name, '') }}</span>
+                                        <span class="font-bold text-gray-900 dark:text-gray-100 truncate">
+                                            {{ $post->user->name }}
+                                        </span>
+                                        <span class="text-gray-500 text-sm truncate">
+                                            {{ '@' . Str::slug($post->user->name, '') }}
+                                        </span>
                                         <span class="text-gray-500 text-sm">·</span>
-                                        <span
-                                            class="text-gray-500 text-sm hover:underline">{{ $post->created_at->diffForHumans() }}</span>
+                                        <span class="text-gray-500 text-sm hover:underline">
+                                            {{ $post->created_at->diffForHumans() }}
+                                        </span>
                                     </div>
+                                    <!-- Options Dot -->
                                     <div class="text-gray-400">
                                         <svg class="w-5 h-5"
                                             fill="currentColor"
@@ -87,26 +99,41 @@
                                 </div>
 
                                 <!-- Text -->
-                                <p class="text-gray-900 dark:text-gray-100 mb-2 leading-normal">
+                                <p class="text-gray-900 dark:text-gray-100 mb-2 leading-normal whitespace-pre-line">
                                     {{ Str::limit($post->content, 280) }}
                                 </p>
 
-                                <!-- Images Preview -->
-                                @if ($post->images->count() > 0)
+                                <!-- Images Preview (Multi-Select Grid) -->
+                                @php
+                                    $imgCount = $post->images->count();
+                                @endphp
+
+                                @if ($imgCount > 0)
                                     <div
-                                        class="mt-3 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 aspect-[16/9]">
-                                        <img src="{{ asset('storage/' . $post->images->first()->image_path) }}"
-                                            class="w-full h-full object-cover">
+                                        class="mt-3 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 grid gap-0.5 
+                                        {{ $imgCount === 1 ? 'grid-cols-1' : 'grid-cols-2' }}">
+
+                                        @foreach ($post->images->take(4) as $image)
+                                            <div
+                                                class="relative {{ $imgCount === 1 ? 'aspect-[16/9]' : 'aspect-square' }}">
+                                                <img src="{{ asset('storage/' . $image->image_path) }}"
+                                                    class="absolute inset-0 w-full h-full object-cover">
+                                            </div>
+                                        @endforeach
                                     </div>
                                 @endif
 
                                 <!-- Action Footer (Icons) -->
-                                <div class="flex justify-between text-gray-500 mt-3 max-w-md">
-                                    <div class="flex items-center gap-2 hover:text-blue-500 group">
+                                <div class="flex justify-between mt-3 max-w-md"
+                                    onclick="event.stopPropagation()">
+
+                                    <!-- Comment Action -->
+                                    <div
+                                        class="flex items-center gap-2 group transition-colors 
+                                        {{ $hasCommented ? 'text-blue-500' : 'text-gray-500 hover:text-blue-500' }}">
                                         <div
                                             class="p-2 rounded-full group-hover:bg-blue-50 dark:group-hover:bg-blue-900/30">
-                                            <svg class="w-5 h-5"
-                                                fill="none"
+                                            <svg class="w-5 h-5 {{ $hasCommented ? 'fill-current' : 'fill-none' }}"
                                                 stroke="currentColor"
                                                 viewBox="0 0 24 24">
                                                 <path stroke-linecap="round"
@@ -119,7 +146,9 @@
                                         <span class="text-sm">{{ $post->comments_count }}</span>
                                     </div>
 
-                                    <div class="flex items-center gap-2 hover:text-green-500 group">
+                                    <!-- Share Action (Static / No DB) -->
+                                    <div
+                                        class="flex items-center gap-2 group text-gray-500 hover:text-green-500 transition-colors">
                                         <div
                                             class="p-2 rounded-full group-hover:bg-green-50 dark:group-hover:bg-green-900/30">
                                             <svg class="w-5 h-5"
@@ -135,29 +164,34 @@
                                         </div>
                                     </div>
 
-                                    <div class="flex items-center gap-2 hover:text-pink-500 group">
-                                        <div
-                                            class="p-2 rounded-full group-hover:bg-pink-50 dark:group-hover:bg-pink-900/30">
-                                            <svg class="w-5 h-5"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round"
-                                                    stroke-linejoin="round"
-                                                    stroke-width="1.5"
-                                                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z">
-                                                </path>
-                                            </svg>
-                                        </div>
-                                        <span class="text-sm">{{ $post->likes_count }}</span>
-                                    </div>
+                                    <!-- Like Action -->
+                                    <form action="{{ route('posts.like', $post) }}"
+                                        method="POST">
+                                        @csrf
+                                        <button type="submit"
+                                            class="flex items-center gap-2 group transition-colors 
+                                            {{ $hasLiked ? 'text-pink-600' : 'text-gray-500 hover:text-pink-500' }}">
+                                            <div
+                                                class="p-2 rounded-full group-hover:bg-pink-50 dark:group-hover:bg-pink-900/30">
+                                                <svg class="w-5 h-5 {{ $hasLiked ? 'fill-current' : 'fill-none' }}"
+                                                    stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round"
+                                                        stroke-linejoin="round"
+                                                        stroke-width="1.5"
+                                                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z">
+                                                    </path>
+                                                </svg>
+                                            </div>
+                                            <span class="text-sm">{{ $post->likes_count }}</span>
+                                        </button>
+                                    </form>
                                 </div>
                             </div>
                         </div>
                     </article>
                 @endforeach
             </div>
-
             <div class="mt-4">
                 {{ $posts->links() }}
             </div>

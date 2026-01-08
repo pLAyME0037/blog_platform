@@ -24,7 +24,9 @@
                     </div>
 
                     <div class="mb-4">
-                        <label class="block font-bold text-gray-700 dark:text-gray-300">Content</label>
+                        <label class="block font-bold text-gray-700 dark:text-gray-300">
+                            Content
+                        </label>
                         <textarea name="content"
                             rows="10"
                             class="w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 rounded shadow-sm"
@@ -32,7 +34,9 @@
                     </div>
 
                     <div class="mb-4">
-                        <label class="block font-bold text-gray-700 dark:text-gray-300">Add More Images</label>
+                        <label class="block font-bold text-gray-700 dark:text-gray-300">
+                            Add More Images
+                        </label>
                         <input type="file"
                             name="images[]"
                             multiple
@@ -50,7 +54,9 @@
                     @endif
 
                     <div class="flex gap-4">
-                        <button class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-500">Update Post</button>
+                        <button class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-500">
+                            Update Post
+                        </button>
                         <a href="{{ route('dashboard.posts.index') }}"
                             class="text-gray-600 dark:text-gray-400 px-4 py-2">Cancel</a>
                     </div>

@@ -55,12 +55,10 @@
                         </svg>
                     </div>
                 </div>
-
+  
                 <!-- 2. Post Content (Big Text) -->
                 <div class="px-4 pb-2">
-                    <p class="text-gray-900 dark:text-gray-100 text-xl leading-normal whitespace-pre-wrap">
-                        {{ $post->content }}
-                    </p>
+                    <p class="text-gray-900 dark:text-gray-100 text-xl leading-normal whitespace-pre-wrap">{{ $post->content }}</p>
                 </div>
 
                 <!-- 3. Image Grid (Twitter Style) -->
@@ -95,13 +93,15 @@
                 <!-- 5. Stats Line (Likes/Comments count) -->
                 <div class="px-4 py-3 border-b border-gray-100 dark:border-gray-700 flex gap-6">
                     <div class="flex gap-1">
-                        <span class="font-bold text-gray-900 dark:text-gray-100">{{ $post->comments->count() }}</span>
+                        <span class="font-bold text-gray-900 dark:text-gray-100">
+                            {{ $post->comments->count() }}
+                        </span>
                         <span class="text-gray-500">Comments</span>
                     </div>
                     <!-- Likes Count Placeholder (Dev 5) -->
                     <div class="flex gap-1">
                         <span class="font-bold text-gray-900 dark:text-gray-100"
-                            id="like-count-display">0</span>
+                            id="like-count-display">{{ $post->likes->count() }}</span>
                         <span class="text-gray-500">Likes</span>
                     </div>
                 </div>

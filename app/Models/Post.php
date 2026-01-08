@@ -10,7 +10,13 @@ class Post extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'title', 'slug', 'content', 'published_at'];
+    protected $fillable = [
+        'user_id',
+        'title',
+        'slug',
+        'content',
+        'published_at',
+    ];
 
     protected function casts(): array
     {
@@ -33,9 +39,14 @@ class Post extends Model
     {
         return $this->hasMany(Like::class);
     }
-    
+
     public function images()
     {
         return $this->hasMany(PostImage::class);
+    }
+
+    public function likedByUsers()
+    {
+        return $this->belongsToMany(User::class, 'likes', 'post_id', 'user_id');
     }
 }
