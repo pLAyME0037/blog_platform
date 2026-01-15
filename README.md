@@ -1,95 +1,128 @@
-## 🏗️ Technical Implementation Plan: Blog Platform
-
-### ✅ Phase A: Foundation & Architecture (Status: INITIALIZATION)
-*Setting up the secure environment and data structure.*
-
-*Logic Flow:*
-1.  **First**, initialize the Laravel project and install **Laravel Breeze** (Livewire stack) to handle all Authentication scaffolding (Login, Register, Password Reset).
-2.  **Then**, define the **Database Schema**:
-    *   `users`: Standard Laravel Auth table.
-    *   `posts`: `id`, `user_id` (foreign), `title`, `slug` (for URL), `content`, `published_at`, `timestamps`.
-    *   `comments`: `id`, `post_id`, `user_id`, `body`, `timestamps`.
-    *   `likes`: `id`, `user_id`, `post_id`. (Compound unique index on `user_id` + `post_id` to prevent duplicate likes).
-3.  **Finally**, define **Eloquent Relationships** in Models:
-    *   `User` hasMany `Post`, `Comment`, `Like`.
-    *   `Post` belongsTo `User`, hasMany `Comment`, hasMany `Like`.
-
-**📂 Files to Create/Modify:**
-*   `database/migrations/xxxx_create_posts_table.php`
-*   `database/migrations/xxxx_create_comments_table.php`
-*   `database/migrations/xxxx_create_likes_table.php`
-*   `app/Models/Post.php`
-*   `app/Models/Comment.php`
-*   `app/Models/Like.php`
+Here is the **Updated Implementation Plan** incorporating the **Multiple Images** requirement while maintaining the **5-Person Team Split** and **Traditional Blade** approach.
 
 ---
 
-### 🚧 Phase B: "My Posts" Dashboard (Status: PENDING)
-*The Authoring Experience. CRUD operations protected by Ownership.*
+## 🏗️ 5-Person Technical Plan (Updated for Multi-Image Support)
 
-*Logic Flow:*
-1.  **First**, create the **PostPolicy** (`php artisan make:policy PostPolicy`).
-    *   Define `update` and `delete` methods: `return $user->id === $post->user_id;`.
-2.  **Then**, build the **Manage Posts** Livewire Component (The "Resource"):
-    *   **Listing:** Fetch `Auth::user()->posts()->paginate()`.
-    *   **Create:** A modal or form to validate and save a new post.
-    *   **Edit:** Bind a post to the form. **Check Policy:** `$this->authorize('update', $post)`.
-    *   **Delete:** **Check Policy:** `$this->authorize('delete', $post)` before destroying.
-3.  **Finally**, register the route in `routes/web.php` protected by the `auth` middleware.
-
-**📂 Files:**
-*   `app/Policies/PostPolicy.php`
-*   `app/Livewire/Dashboard/MyPosts.php` (Listing & Delete logic)
-*   `app/Livewire/Dashboard/PostForm.php` (Create & Update logic)
-*   `resources/views/livewire/dashboard/my-posts.blade.php`
+### 🚀 Step 1: The "Shared Foundation" (Dev 1 - The Lead)
+*Before the team splits, Dev 1 must set up the core.*
+*   **Install:** Laravel + Breeze (Blade stack).
+*   **Database:** Create `users`, `posts`, `post_images`, `comments`, `likes` tables.
+*   **Storage:** Run `php artisan storage:link` (Critical for images to show up).
+*   **Seeders:** Run the `DatabaseSeeder` so everyone has data.
+*   **Git:** Push `main`.
 
 ---
 
-### Phase C: Public Access & Reading (The "View" Layer)
-*Logic Flow:*
-1.  **First**, create a Public Landing Page.
-    *   Fetch all posts where `published_at` is not null.
-    *   Order by latest.
-2.  **Then**, create the **Single Post View**.
-    *   Use Route Model Binding with Slugs for SEO (`/posts/{post:slug}`).
-    *   Display Title, Author Name, Date, and Content.
-3.  **Finally**, implement the "Guest vs Auth" view logic:
-    *   If the viewer is the *owner*, show "Edit" buttons on the public page.
-    *   If the viewer is *guest*, show only content.
+### 🧱 Step 2: Divide & Conquer (5 Roles)
 
-**📂 Files:**
-*   `app/Livewire/Public/BlogIndex.php`
-*   `app/Livewire/Public/ShowPost.php`
-*   `resources/views/livewire/public/blog-index.blade.php`
-*   `resources/views/livewire/public/show-post.blade.php`
+#### 👮‍♂️ Dev 1: Architecture & Access (Lead / Security)
+*The Guard. Handles the setup, navigation, and database structure.*
+*   **Task:** Define Layouts, Navigation, Middleware, and the **Image Migration**.
+*   **Database Change:** Create `create_post_images_table` migration:
+    *   Columns: `id`, `post_id` (foreign key), `image_path` (string).
+*   **Files:**
+    *   `database/migrations/xxxx_create_post_images_table.php`
+    *   `app/Models/PostImage.php` (BelongsTo Post)
+    *   `app/Models/Post.php` (HasMany PostImage)
+    *   `resources/views/layouts/app.blade.php`
+
+#### 📝 Dev 2: Post Management (The Author)
+*The CRUD Expert. Handles the "Back Office" & File Uploads.*
+*   **Task:** Build the system to write posts and **upload multiple photos**.
+*   **Controller:** `DashboardPostController`.
+*   **Logic (File Uploads):**
+    *   **Form:** Must use `<form enctype="multipart/form-data">`.
+    *   **Input:** `<input type="file" name="images[]" multiple>`.
+    *   **Store Method:** Loop through `$request->file('images')`, store them in `public/posts`, and save paths to the `post_images` table.
+*   **Views:**
+    *   `views/dashboard/posts/create.blade.php` (The generic form)
+
+#### 👓 Dev 3: Public Reading (The Viewer)
+*The Frontend. Handles the public facing pages & Gallery.*
+*   **Task:** Display posts and the **Image Gallery**.
+*   **Controller:** `PublicPostController`.
+*   **Views:**
+    *   `views/posts/show.blade.php`
+*   **Logic (Gallery):**
+    *   Check if `$post->images` is not empty.
+    *   Loop through images: `<img src="{{ asset('storage/' . $image->image_path) }}">`.
+    *   Use CSS Grid or Flexbox to display them nicely.
+
+#### 🗣️ Dev 4: Interaction System (The Commenter)
+*The Community Manager. Handles discussion.*
+*   **Task:** Allow users to comment on Dev 3's posts.
+*   **Controller:** `CommentController` (Methods: `store`, `destroy`).
+*   **Integration:** Build a **Partial View** (`_comments.blade.php`) included by Dev 3.
+*   **Logic:**
+    *   Form POST request to `/posts/{post}/comments`.
+    *   Validation: Required, Max 1000 chars.
+
+#### ❤️ Dev 5: Social & Profile (The User)
+*The Social Engineer. Handles Likes and Profile aggregation.*
+*   **Task:** The "Like" button logic and "My Liked Posts" page.
+*   **Controller:** `LikeController` & `ProfileController`.
+*   **Logic:**
+    *   **Like:** Form POST that redirects back (Page reload).
+    *   **Profile:** Page showing "Posts I have liked" (`Auth::user()->likedPosts`).
+*   **Views:**
+    *   `views/profile/liked-posts.blade.php`
 
 ---
 
-### Phase D: Engagement (Comments & Likes)
-*Logic Flow:*
-1.  **First**, implement **Likes** (Livewire Component).
-    *   **Check:** Is user logged in? If no, redirect to login.
-    *   **Action:** Toggle relationship. `auth()->user()->likes()->toggle($post)`.
-    *   **UI:** Optimistic update (update count immediately via Alpine/Livewire).
-2.  **Then**, implement **Comments**.
-    *   List existing comments for the post.
-    *   Add a form: `textarea` + `Submit`.
-    *   **Validation:** Required, max characters.
-    *   **Security:** Ensure `post_id` matches the current page.
-3.  **Finally**, add "Delete Comment" ability.
-    *   Only allow if `auth()->id() === comment->user_id` OR `auth()->id() === post->user_id`.
+### 🔧 Low-Level Rules of Engagement
 
-**📂 Files:**
-*   `app/Livewire/Components/LikeButton.php`
-*   `app/Livewire/Components/CommentSection.php`
-*   `resources/views/livewire/components/comment-section.blade.php`
+#### 1. The "Controller" Rule
+**Never** put all logic in one Controller.
+*   Dev 2 owns `DashboardPostController`.
+*   Dev 3 owns `PublicPostController`.
+*   Dev 4 owns `CommentController`.
+*   Dev 5 owns `LikeController`.
 
----
+#### 2. The "Upload" Rule (Specific for Dev 2)
+To handle multiple images without complexity:
+```php
+// DashboardPostController.php
+public function store(Request $request) {
+    // 1. Create Post
+    $post = Auth::user()->posts()->create($request->safe()->except('images'));
+    
+    // 2. Handle Images
+    if($request->hasFile('images')) {
+        foreach($request->file('images') as $file) {
+            $path = $file->store('posts', 'public'); // Save file
+            $post->images()->create(['image_path' => $path]); // Save DB record
+        }
+    }
+}
+```
 
-## 📝 Immediate Action Plan (Starting Phase A)
+#### 3. The "Route" Rule
+Split `routes/web.php` clearly:
 
-1.  **Install Laravel Breeze** to handle the auth scaffolding immediately.
-2.  **Generate Migrations** for Posts, Comments, and Likes.
-3.  **Define Models** to ensure relationships (`$user->posts`) are ready for the logic phase.
+```php
+// --- Dev 3 (Public) ---
+Route::get('/', [PublicPostController::class, 'index']);
+Route::get('/posts/{post}', [PublicPostController::class, 'show']);
 
-Shall we begin by running the **Migrations** and setting up the **Models**?
+// --- Authenticated Group ---
+Route::middleware(['auth'])->group(function () {
+    // Dev 2 (Dashboard)
+    Route::resource('dashboard/posts', DashboardPostController::class);
+
+    // Dev 4 (Comments)
+    Route::post('/posts/{post}/comments', [CommentController::class, 'store']);
+    Route::delete('/comments/{comment}', [CommentController::class, 'destroy']);
+
+    // Dev 5 (Likes & Profile)
+    Route::post('/posts/{post}/like', [LikeController::class, 'toggle']);
+    Route::get('/my-likes', [ProfileController::class, 'likes']);
+});
+```
+
+### 🏁 Summary Checklist
+
+1.  **Dev 1:** Run `php artisan make:model PostImage -m` immediately.
+2.  **Dev 1:** Run `php artisan storage:link`.
+3.  **Dev 2:** Remember to add `enctype="multipart/form-data"` to your HTML form, or uploads will silently fail.
+4.  **Dev 3:** Remember to use `asset('storage/' . $path)` to display images.
