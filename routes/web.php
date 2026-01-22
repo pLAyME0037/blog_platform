@@ -9,10 +9,10 @@ use Illuminate\Support\Facades\Route;
 
 // 1. Homepage = List of Posts
 Route::get('/', [PublicPostController::class, 'index'])
-    ->name('posts.index')->middleware(['guest']);
+    ->name('posts.index');
 // 2. Single Post View
 Route::get('/posts/{post:slug}', [PublicPostController::class, 'show'])
-    ->name('posts.show')->middleware(['guest']);
+    ->name('posts.show')->middleware(['user']);
 
 // --- Authenticated Group ---
 Route::middleware(['auth', 'verified','user'])->group(function () {

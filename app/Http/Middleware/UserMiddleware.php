@@ -18,7 +18,7 @@ class UserMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         if(!Auth::user()){
-            return back();
+            return to_route('login');
         }
         return $next($request);
     }
