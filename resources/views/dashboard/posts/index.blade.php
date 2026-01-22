@@ -218,6 +218,7 @@
                     {{ $posts->links() }}
                 </div>
             @endif
+
         </div>
     </div>
 </x-app-layout>

@@ -39,6 +39,11 @@
                         {{ __('Home') }}
                     </x-nav-link>
 
+                    <x-nav-link :href="route('dashboard.posts.index')" :active="request()->routeIs('dashboard.posts.index')">
+                        {{ __('My Post') }}
+                    </x-nav-link>
+
+
                     @auth
                         <!-- Auth: Dashboard -->
                         <x-nav-link :href="route('dashboard')"
@@ -54,6 +59,7 @@
                             {{ __('My Posts') }}
                         </x-nav-link>
                     @endauth
+
                 </div>
             </div>
 
@@ -191,6 +197,11 @@
                 {{ __('Home') }}
             </x-responsive-nav-link>
 
+            <x-responsive-nav-link :href="route('dashboard.posts.index')" :active="request()->routeIs('dashboard.posts.index')">
+                {{ __('My Post') }}
+            </x-responsive-nav-link>
+
+
             @auth
                 <x-responsive-nav-link :href="route('dashboard')"
                     :active="request()->routeIs('dashboard')">
@@ -202,7 +213,9 @@
                     {{ __('My Posts') }}
                 </x-responsive-nav-link>
             @endauth
+
         </div>
+
 
         <!-- Responsive Settings Options -->
         <div class="pt-4 pb-1 border-t border-gray-200 dark:border-gray-700">
