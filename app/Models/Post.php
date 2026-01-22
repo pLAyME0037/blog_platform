@@ -10,32 +10,37 @@ class Post extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'title', 'slug', 'content', 'published_at'];
+    protected $fillable = [
+        'user_id',
+        'title',
+        'slug',
+        'content',
+        'published_at',
+    ];
 
-    protected function casts(): array
-    {
+    protected function casts(): array {
         return [
             'published_at' => 'datetime',
         ];
     }
 
-    public function user(): BelongsTo
-    {
+    public function user(): BelongsTo {
         return $this->belongsTo(User::class);
     }
 
-    public function comments(): HasMany
-    {
+    public function comments(): HasMany {
         return $this->hasMany(Comment::class);
     }
 
-    public function likes(): HasMany
-    {
+    public function likes(): HasMany {
         return $this->hasMany(Like::class);
     }
-    
-    public function images()
-    {
+
+    public function images() {
         return $this->hasMany(PostImage::class);
+    }
+
+    public function likedByUsers() {
+        return $this->belongsToMany(User::class, 'likes', 'post_id', 'user_id');
     }
 }

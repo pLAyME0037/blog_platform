@@ -1,66 +1,47 @@
 <?php
 
-use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\CommentController;
 use App\Http\Controllers\DashboardPostController;
+use App\Http\Controllers\LikeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PublicPostController;
 use Illuminate\Support\Facades\Route;
 
-<<<<<<< HEAD
-Route::get('/', function () {
-    return view('welcome');
-});
+// 1. Homepage = List of Posts
+Route::get('/', [PublicPostController::class, 'index'])
+    ->name('posts.index');
+// 2. Single Post View
+Route::get('/posts/{post:slug}', [PublicPostController::class, 'show'])
+    ->name('posts.show')->middleware(['user']);
 
-Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/dashboard', [DashboardController::class,'index'])->name('dashboard');
+// --- Authenticated Group ---
+Route::middleware(['auth', 'verified','user'])->group(function () {
 
-    Route::controller(DashboardPostController::class)
-        ->prefix('dashboard/posts')
-        ->name('dashboard.posts.')
-        ->group(function () {
+    // Dashboard Landing Page
+    Route::get('/dashboard', function () {
+        return view('dashboard');
+    })->name('dashboard');
 
-            Route::get('/', 'index')->name('index');
-            Route::get('/create', 'create')->name('create');
-            Route::post('/', 'store')->name('store');
-            Route::get('/{post}/view', 'show')->name('view');
-            Route::get('/{post}/edit', 'edit')->name('edit');
-            Route::put('/{post}', 'update')->name('update');
-            Route::delete('/{post}', 'destroy')->name('destroy');
-        });
-});
+    Route::resource('dashboard/posts', DashboardPostController::class)
+        ->names('dashboard.posts');
 
-
-Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
-    Route::get('account', function () {
-        return view();
-    });
-=======
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
-
-Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])
         ->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])
         ->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])
         ->name('profile.destroy');
->>>>>>> 9a7192196431b1d4ab1963a655c88ecb7e5cce87
+
+    Route::post('/posts/{post}/comments', [CommentController::class, 'store'])
+        ->name('comments.store');
+    Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])
+        ->name('comments.destroy');
+
+    Route::post('/posts/{post}/like', [LikeController::class, 'toggle'])
+        ->name('posts.like');
+
+    Route::get('/my-likes', [ProfileController::class, 'likedPosts'])
+        ->name('profile.likes');
 });
-
-// --- Dev 3 (Public Routes) ---
-// This makes the homepage the post list
-Route::get('/', [PublicPostController::class, 'index'])
-    ->name('home');
-
-// This opens a single post.
-// Note: We use {post} to allow Route Model Binding
-Route::get('/posts/{post}', [PublicPostController::class, 'show'])
-    ->name('posts.show');
 
 require __DIR__ . '/auth.php';
