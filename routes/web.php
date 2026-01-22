@@ -9,13 +9,13 @@ use Illuminate\Support\Facades\Route;
 
 // 1. Homepage = List of Posts
 Route::get('/', [PublicPostController::class, 'index'])
-    ->name('posts.index');
+    ->name('posts.index')->middleware(['guest']);
 // 2. Single Post View
 Route::get('/posts/{post:slug}', [PublicPostController::class, 'show'])
-    ->name('posts.show');
+    ->name('posts.show')->middleware(['guest']);
 
 // --- Authenticated Group ---
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth', 'verified','user'])->group(function () {
 
     // Dashboard Landing Page
     Route::get('/dashboard', function () {
