@@ -15,7 +15,9 @@
                     @method('PUT') <!-- Critical for Updates -->
 
                     <div class="mb-4">
-                        <label class="block font-bold text-gray-700 dark:text-gray-300">Title</label>
+                        <label class="block font-bold text-gray-700 dark:text-gray-300">
+                            Title
+                        </label>
                         <input type="text"
                             name="title"
                             value="{{ old('title', $post->title) }}"
@@ -58,7 +60,9 @@
                             Update Post
                         </button>
                         <a href="{{ route('dashboard.posts.index') }}"
-                            class="text-gray-600 dark:text-gray-400 px-4 py-2">Cancel</a>
+                            class="text-gray-600 dark:text-gray-400 px-4 py-2">
+                            Cancel
+                        </a>
                     </div>
                 </form>
             </div>

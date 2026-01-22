@@ -39,11 +39,6 @@
                         {{ __('Home') }}
                     </x-nav-link>
 
-                    <x-nav-link :href="route('dashboard.posts.index')" :active="request()->routeIs('dashboard.posts.index')">
-                        {{ __('My Post') }}
-                    </x-nav-link>
-
-
                     @auth
                         <!-- Auth: Dashboard -->
                         <x-nav-link :href="route('dashboard')"

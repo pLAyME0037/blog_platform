@@ -15,11 +15,11 @@ Route::get('/posts/{post:slug}', [PublicPostController::class, 'show'])
     ->name('posts.show')->middleware(['user']);
 
 // --- Authenticated Group ---
-Route::middleware(['auth', 'verified','user'])->group(function () {
+Route::middleware(['auth', 'verified', 'user'])->group(function () {
 
     // Dashboard Landing Page
     Route::get('/dashboard', function () {
-        return view('dashboard');
+        return redirect()->route('dashboard.posts.index');
     })->name('dashboard');
 
     Route::resource('dashboard/posts', DashboardPostController::class)

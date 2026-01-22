@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\Post;
@@ -85,7 +84,8 @@ class DashboardPostController extends Controller
             }
         }
 
-        return redirect()->route('dashboard.posts.index')->with('success', 'Post updated!');
+        return redirect()->route('dashboard.posts.index')
+                         ->with('success', 'Post updated!');
     }
 
     public function destroy(Post $post) {
