@@ -6,26 +6,23 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
-// Important for Policies
+use SebastianBergmann\CodeUnit\FunctionUnit;
 
 class DashboardPostController extends Controller
 {
     use AuthorizesRequests;
 
-    public function index()
-    {
+    public function index() {
         // Fetch ONLY my posts, eager load images for performance
         $posts = Auth::user()->posts()->with('images')->latest()->paginate(10);
         return view('dashboard.posts.index', compact('posts'));
     }
 
-    public function create()
-    {
+    public function create() {
         return view('dashboard.posts.create');
     }
 
-    public function store(Request $request)
-    {
+    public function store(Request $request) {
         // 1. Validate
         $request->validate([
             'title'    => 'required|string|max:255',
@@ -52,16 +49,18 @@ class DashboardPostController extends Controller
         return redirect()->route('dashboard.posts.index')->with('success', 'Post created!');
     }
 
+    public Function show() {
+        //
+    }
+
     // Show the Edit Form
-    public function edit(Post $post)
-    {
+    public function edit(Post $post) {
         $this->authorize('update', $post);
         return view('dashboard.posts.edit', compact('post'));
     }
 
     // Handle the Update Logic
-    public function update(Request $request, Post $post)
-    {
+    public function update(Request $request, Post $post) {
         $this->authorize('update', $post);
 
         $request->validate([
@@ -88,8 +87,7 @@ class DashboardPostController extends Controller
         return redirect()->route('dashboard.posts.index')->with('success', 'Post updated!');
     }
 
-    public function destroy(Post $post)
-    {
+    public function destroy(Post $post) {
         // Check Policy: Only owner can delete
         $this->authorize('delete', $post);
 

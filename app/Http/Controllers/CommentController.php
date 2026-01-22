@@ -9,8 +9,7 @@ use Illuminate\Support\Facades\Auth;
 
 class CommentController extends Controller
 {
-    public function store(Request $request, Post $post)
-    {
+    public function store(Request $request, Post $post) {
         // 1. Validate
         $request->validate([
             'content' => 'required|string|max:1000',
@@ -26,10 +25,10 @@ class CommentController extends Controller
         return back()->with('success', 'Comment posted!');
     }
 
-    public function destroy(Comment $comment)
-    {
+    public function destroy(Comment $comment) {
         // Security: Only delete if I own the comment OR I own the post
-        if (Auth::id() !== $comment->user_id && Auth::id() !== $comment->post->user_id) {
+        if (Auth::id() !== $comment->user_id
+            && Auth::id() !== $comment->post->user_id) {
             abort(403);
         }
 
